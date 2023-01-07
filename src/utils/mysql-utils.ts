@@ -3,10 +3,18 @@ import * as mysql from "mysql";
 export class MySQLPool {
   pool: mysql.Pool;
 
-  constructor(host: string, username: string, password: string) {
+  constructor(
+    host: string,
+    port: number,
+    database: string,
+    username: string,
+    password: string
+  ) {
     this.pool = mysql.createPool({
       connectionLimit: 5_000,
       host: host,
+      port: port,
+      database: database,
       user: username,
       password: password,
     });
@@ -15,19 +23,15 @@ export class MySQLPool {
   public async query(statement: string, values?: any[][]): Promise<any> {
     return new Promise<any | void>((resolve, reject) => {
       if (values) {
-        this.pool.query(
-          statement,
-          [values],
-          (err: any, results: any, fields: any) => {
-            if (err) {
-              reject(err);
-            }
-
-            return results ? resolve(results) : resolve(null);
+        this.pool.query(statement, [values], (err: any, results: any) => {
+          if (err) {
+            reject(err);
           }
-        );
+
+          return results ? resolve(results) : resolve(null);
+        });
       } else {
-        this.pool.query(statement, (err: any, results: any, fields: any) => {
+        this.pool.query(statement, (err: any, results: any) => {
           if (err) {
             reject(err);
           }
@@ -47,12 +51,7 @@ export class MySQLPool {
     });
   }
 
-  public async createDBIfNotExists(dbName: string) {
-    await this.query(`CREATE DATABASE IF NOT EXISTS ${dbName};`);
-  }
-
   public async createTableIfNotExists(
-    dbName: string,
     tableName: string,
     columnNames: string[],
     dataTypes: string[]
@@ -67,25 +66,22 @@ export class MySQLPool {
     }
 
     await this.query(
-      `CREATE TABLE IF NOT EXISTS ${dbName}.${tableName} (${zipped.join(
-        ", "
-      )});`
+      `CREATE TABLE IF NOT EXISTS ${tableName} (${zipped.join(", ")});`
     );
   }
 
   public async writeValues(
-    dbName: string,
     tableName: string,
     objects: { [index: string]: any }[]
   ) {
     if (objects.length < 1) {
-      throw `Failed to write values into ${dbName}.${tableName}: objects array must include at least 1 item.`;
+      throw `Failed to write values into ${tableName}: objects array must include at least 1 item.`;
     }
 
     // Grab column list
     const columns: string[] = Object.keys(objects[0]);
 
-    const statement = `INSERT INTO ${dbName}.${tableName} (${columns.join(
+    const statement = `INSERT INTO ${tableName} (${columns.join(
       ", "
     )}) VALUES ?;`;
 
@@ -97,11 +93,7 @@ export class MySQLPool {
     await this.query(statement, values);
   }
 
-  public async deleteValues(
-    dbName: string,
-    tableName: string,
-    filter: object
-  ): Promise<void> {
+  public async deleteValues(tableName: string, filter: object): Promise<void> {
     const conditions: string[] = [];
     for (const entry of Object.entries(filter)) {
       // Wrap value in single quotes if it's a string
@@ -114,13 +106,10 @@ export class MySQLPool {
 
     const conditionsCombined = conditions.join(" AND ");
 
-    this.query(
-      `DELETE FROM ${dbName}.${tableName} WHERE ${conditionsCombined};`
-    );
+    this.query(`DELETE FROM ${tableName} WHERE ${conditionsCombined};`);
   }
 
   public async readValues(
-    dbName: string,
     tableName: string,
     filter: object,
     columns: string[],
@@ -145,7 +134,7 @@ export class MySQLPool {
 
     let statement = `SELECT ${columns.join(
       ", "
-    )} FROM ${dbName}.${tableName} WHERE ${conditionsCombined}`;
+    )} FROM ${tableName} WHERE ${conditionsCombined}`;
 
     if (limit) {
       statement = statement + ` LIMIT ${limit}`;
@@ -156,13 +145,7 @@ export class MySQLPool {
     return this.query(statement);
   }
 
-  public async hasRow(
-    dbName: string,
-    tableName: string,
-    filter: object
-  ): Promise<boolean> {
-    return (await this.readValues(dbName, tableName, filter, ["*"], 1))
-      ? true
-      : false;
+  public async hasRow(tableName: string, filter: object): Promise<boolean> {
+    return (await this.readValues(tableName, filter, ["*"], 1)) ? true : false;
   }
 }
