@@ -11,7 +11,7 @@ export class MySQLPool {
     password: string
   ) {
     this.pool = mysql.createPool({
-      connectionLimit: 5_000,
+      connectionLimit: 1_000,
       host: host,
       port: port,
       database: database,

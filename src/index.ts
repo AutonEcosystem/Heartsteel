@@ -25,11 +25,14 @@ if (
   throw new Error("Some environment variables are not set properly");
 }
 
-setupMySQL(
-  MYSQL_HOST,
-  +MYSQL_PORT,
-  MYSQL_DATABASE,
-  MYSQL_USERNAME,
-  MYSQL_PASSWORD
-);
-startServer();
+async function start(): Promise<void> {
+  await setupMySQL(
+    MYSQL_HOST!,
+    +MYSQL_PORT!,
+    MYSQL_DATABASE!,
+    MYSQL_USERNAME!,
+    MYSQL_PASSWORD!
+  );
+  startServer();
+}
+start();
