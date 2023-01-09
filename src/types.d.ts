@@ -1,6 +1,6 @@
 export type Trait = {
-  trait_type: string;
-  trait_name: string;
+  type: string;
+  value: string;
 };
 
 export type TokenMetadata = {
