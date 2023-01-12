@@ -58,6 +58,7 @@ type QueuedRequest = {
     body: any;
   };
   response: any;
+  error: any;
 };
 
 export class RequestQueue {
@@ -92,6 +93,7 @@ export class RequestQueue {
         body: body,
       },
       response: undefined,
+      error: undefined,
     };
 
     // If rate limit is not exceeded, execute right away
@@ -104,8 +106,16 @@ export class RequestQueue {
     }
 
     // Wait till request is processed
-    while (queuedRequest.response === undefined) {
+    while (
+      queuedRequest.response === undefined &&
+      queuedRequest.error === undefined
+    ) {
       await wait(25);
+    }
+
+    // If error was thrown from the request, pass it to its respective handler
+    if (queuedRequest.error) {
+      throw queuedRequest.error;
     }
 
     return queuedRequest.response;
@@ -117,11 +127,15 @@ export class RequestQueue {
     const { url, headers, proxy, formatJSON, method, body } =
       queuedRequest.requestData;
 
-    request(url, headers, proxy, formatJSON, method, body).then(
-      (response: any) => {
+    request(url, headers, proxy, formatJSON, method, body)
+      .then((response: any) => {
         queuedRequest.response = response;
-      }
-    );
+      })
+      // We need to catch the error and throw it in queueRequest because here it can interrupt the periodic processQueue
+      // function
+      .catch((error: any) => {
+        queuedRequest.error = error;
+      });
   }
 
   private resetCounter() {

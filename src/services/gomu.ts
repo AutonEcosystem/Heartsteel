@@ -26,7 +26,7 @@ export async function getContractMetadata(
     const promises: Promise<any>[] = [];
 
     for (let i = 0; i < tokenCount; i += TOKEN_LIMIT) {
-      let url = `https://api.gomu.co/rest/nfts/by-token?contractAddress=${contractAddress}&includeLastTransfer=false&sortBy=tokenId-asc&cursor=${i}`;
+      let url = `https://api.gomu.co/rest/nfts/by-contract?contractAddress=${contractAddress}&includeLastTransfer=false&sortBy=tokenId-asc&cursor=${i}`;
       promises.push(requestQueue.queueRequest(url, AUTHENTICATION_HEADER));
     }
 

@@ -5,6 +5,7 @@ dotenv.config();
 
 // Make sure all environment values are set
 const {
+  PORT,
   MYSQL_HOST,
   MYSQL_PORT,
   MYSQL_DATABASE,
@@ -15,6 +16,8 @@ const {
 } = process.env;
 
 if (
+  !PORT ||
+  isNaN(+PORT) ||
   !MYSQL_HOST ||
   !MYSQL_PORT ||
   isNaN(+MYSQL_PORT) ||

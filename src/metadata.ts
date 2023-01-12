@@ -28,9 +28,12 @@ export async function getMetadata(
     return readMetadata(contractAddress, tokenID);
   }
 
-  // Otherwise, request token metadata and queue collection for saving
-  downloadQueue.push(contractAddress);
-  console.log("Collections in download queue: " + downloadQueue.length);
+  // Otherwise, queue collection for saving if it is not already queued
+  if (!downloadQueue.includes(contractAddress)) {
+    downloadQueue.push(contractAddress);
+    console.log("Collections in download queue: " + downloadQueue.length);
+  }
+
   return null;
 }
 
