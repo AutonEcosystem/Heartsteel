@@ -10,5 +10,5 @@ export function startServer() {
 app.get("/tokens/:contractAddress/:tokenID", async (req, res) => {
   const { contractAddress, tokenID } = req.params;
   const metadata = await getMetadata(contractAddress, tokenID);
-  res.send(metadata);
+  metadata ? res.send(metadata) : res.send({ error: "not found" });
 });

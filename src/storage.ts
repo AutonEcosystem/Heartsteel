@@ -5,7 +5,7 @@ import { MySQLPool } from "./utils/mysql-utils";
 const TOKEN_METADATA_TABLE_NAME = "token_metadata";
 const TOKEN_METADATA_TABLE_SIGNATURE = `contract_address VARCHAR(255) NOT NULL,
 token_id VARCHAR(255) NOT NULL,
-rarity_rank INT NOT NULL,
+rarity_rank INT NULL,
 traits TEXT NOT NULL,
 last_updated INT NOT NULL,
 UNIQUE KEY idx_nft_id (contract_address, token_id),
