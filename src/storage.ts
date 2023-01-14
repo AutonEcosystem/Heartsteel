@@ -21,14 +21,14 @@ export async function setupMySQL(
   username: string,
   password: string
 ): Promise<void> {
-  pool = new MySQLPool(host, port, database, username, password);
+  pool = new MySQLPool(host, port, database, username, password, "utf8mb4");
   await setupTables();
 }
 
 async function setupTables(): Promise<void> {
   // Token Metadata
   await pool.query(
-    `CREATE TABLE IF NOT EXISTS ${TOKEN_METADATA_TABLE_NAME} (${TOKEN_METADATA_TABLE_SIGNATURE}) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;`
+    `CREATE TABLE IF NOT EXISTS ${TOKEN_METADATA_TABLE_NAME} (${TOKEN_METADATA_TABLE_SIGNATURE}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
   );
 }
 
