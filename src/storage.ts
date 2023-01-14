@@ -12,10 +12,6 @@ UNIQUE KEY idx_nft_id (contract_address, token_id),
 KEY idx_last_updated (last_updated) USING BTREE,
 FULLTEXT KEY (traits)`;
 
-const TABLE_SIGNATURES: { [index: string]: string } = {
-  [TOKEN_METADATA_TABLE_NAME]: TOKEN_METADATA_TABLE_SIGNATURE,
-};
-
 let pool: MySQLPool;
 
 export async function setupMySQL(
@@ -30,11 +26,10 @@ export async function setupMySQL(
 }
 
 async function setupTables(): Promise<void> {
-  for (const tableName in TABLE_SIGNATURES) {
-    await pool.query(
-      `CREATE TABLE IF NOT EXISTS ${tableName} (${TABLE_SIGNATURES[tableName]});`
-    );
-  }
+  // Token Metadata
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS ${TOKEN_METADATA_TABLE_NAME} (${TOKEN_METADATA_TABLE_SIGNATURE}) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;`
+  );
 }
 
 export async function isTokenSaved(contractAddress: string, tokenID: string) {
