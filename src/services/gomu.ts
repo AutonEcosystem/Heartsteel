@@ -1,3 +1,4 @@
+import { MAX_TOKEN_COUNT } from "../constants";
 import { TokenMetadata, Trait } from "../types";
 import { sendLogs } from "../utils/logging-utils";
 import { RequestQueue } from "../utils/request-utils";
@@ -17,7 +18,11 @@ export async function getContractMetadata(
 
   const tokenCount = await getTokenCount(contractAddress);
 
-  if (!tokenCount) {
+  if (!tokenCount || tokenCount > MAX_TOKEN_COUNT) {
+    sendLogs(
+      `Skipping collection ${contractAddress}: token count exceeds maximum allowed.`,
+      false
+    );
     return null;
   }
 
