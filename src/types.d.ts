@@ -6,6 +6,6 @@ export type Trait = {
 export type TokenMetadata = {
   contractAddress: string;
   tokenID: string;
-  rarityRank: number;
+  rarityRank: number | null;
   traits: Trait[];
 };
