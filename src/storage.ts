@@ -53,7 +53,8 @@ export async function saveMetadata(metadata: TokenMetadata[]): Promise<void> {
     });
   }
 
-  await pool.writeValues(TOKEN_METADATA_TABLE_NAME, toSave);
+  // Need to replace old metadata if it exists, so we pass true for the 3rd parameter
+  await pool.writeValues(TOKEN_METADATA_TABLE_NAME, toSave, true);
 }
 
 export async function readMetadata(
@@ -77,12 +78,6 @@ export async function readMetadata(
     rarityRank: result.rarity_rank,
     traits: JSON.parse(result.traits),
   };
-}
-
-export async function deleteMetadata(contractAddress: string) {
-  await pool.deleteValues(TOKEN_METADATA_TABLE_NAME, {
-    contract_address: contractAddress,
-  });
 }
 
 export async function readLastUpdated(

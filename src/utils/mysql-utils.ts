@@ -74,7 +74,8 @@ export class MySQLPool {
 
   public async writeValues(
     tableName: string,
-    objects: { [index: string]: any }[]
+    objects: { [index: string]: any }[],
+    replace: boolean = false
   ) {
     if (objects.length < 1) {
       throw `Failed to write values into ${tableName}: objects array must include at least 1 item.`;
@@ -83,9 +84,9 @@ export class MySQLPool {
     // Grab column list
     const columns: string[] = Object.keys(objects[0]);
 
-    const statement = `INSERT INTO ${tableName} (${columns.join(
-      ", "
-    )}) VALUES ?;`;
+    const statement = `${
+      replace ? "REPLACE" : "INSERT"
+    } INTO ${tableName} (${columns.join(", ")}) VALUES ?;`;
 
     const values: any[][] = [];
     for (const obj of objects) {

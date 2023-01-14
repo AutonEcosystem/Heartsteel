@@ -1,7 +1,6 @@
 import { CONTRACT_METADATA_LIFE } from "./constants";
 import { getContractMetadata } from "./services/gomu";
 import {
-  deleteMetadata,
   isTokenSaved,
   readLastUpdated,
   readMetadata,
@@ -46,8 +45,6 @@ async function processQueue() {
       continue;
     }
 
-    // Delete old metadata if it exists
-    await deleteMetadata(contractAddress);
     await saveMetadata(metadata);
   }
 
