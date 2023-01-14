@@ -18,7 +18,11 @@ export async function getContractMetadata(
 
   const tokenCount = await getTokenCount(contractAddress);
 
-  if (!tokenCount || tokenCount > MAX_TOKEN_COUNT) {
+  if (!tokenCount) {
+    return null;
+  }
+
+  if (tokenCount > MAX_TOKEN_COUNT) {
     sendLogs(
       `Skipping collection ${contractAddress}: token count exceeds maximum allowed.`,
       false
