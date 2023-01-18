@@ -39,6 +39,9 @@ export async function getMetadata(
 async function processQueue() {
   for (let i = 0; i < downloadQueue.length; i++) {
     const contractAddress = downloadQueue.shift()!;
+
+    console.log(`Initiating download for ${contractAddress}`);
+
     const metadata = await getContractMetadata(contractAddress);
 
     if (!metadata) {
