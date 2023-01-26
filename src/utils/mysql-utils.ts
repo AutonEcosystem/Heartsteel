@@ -9,15 +9,16 @@ export class MySQLPool {
     database: string,
     username: string,
     password: string,
+    connectionLimit: number,
     charset?: string
   ) {
     this.pool = mysql.createPool({
-      connectionLimit: 1_000,
       host: host,
       port: port,
       database: database,
       user: username,
       password: password,
+      connectionLimit,
       charset,
     });
   }

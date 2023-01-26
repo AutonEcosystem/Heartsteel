@@ -9,6 +9,7 @@ import {
 } from "./storage";
 import { TokenMetadata } from "./types";
 import { currentTimestampSeconds } from "./utils/date-utils";
+import { sendLogs } from "./utils/logging-utils";
 
 let downloadQueue: string[] = [];
 
@@ -51,7 +52,9 @@ async function processQueue() {
 
     rerankMetadata(metadata);
 
-    await saveMetadata(metadata);
+    saveMetadata(metadata).catch((error: any) => {
+      sendLogs(error, true);
+    });
   }
 
   setTimeout(() => {

@@ -77,7 +77,9 @@ async function getTokenCount(contractAddress: string): Promise<number | null> {
     sendLogs(error, true);
   }
 
-  return response ? +response.data.contract.tokensCount : null;
+  return response && response.data && response.data.contract
+    ? +response.data.contract.tokensCount
+    : null;
 }
 
 function transformTraitArray(traits: any[]): Trait[] {

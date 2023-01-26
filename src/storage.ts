@@ -19,9 +19,18 @@ export async function setupMySQL(
   port: number,
   database: string,
   username: string,
-  password: string
+  password: string,
+  connectionLimit: number
 ): Promise<void> {
-  pool = new MySQLPool(host, port, database, username, password, "utf8mb4");
+  pool = new MySQLPool(
+    host,
+    port,
+    database,
+    username,
+    password,
+    connectionLimit,
+    "utf8mb4"
+  );
   await setupTables();
 }
 

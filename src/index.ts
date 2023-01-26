@@ -11,6 +11,7 @@ const {
   MYSQL_DATABASE,
   MYSQL_USERNAME,
   MYSQL_PASSWORD,
+  MYSQL_CONN_LIMIT,
   GOMU_API_KEY,
   GOMU_API_RATE_LIMIT,
 } = process.env;
@@ -24,6 +25,8 @@ if (
   !MYSQL_DATABASE ||
   !MYSQL_USERNAME ||
   !MYSQL_PASSWORD ||
+  !MYSQL_CONN_LIMIT ||
+  isNaN(+MYSQL_CONN_LIMIT) ||
   !GOMU_API_KEY ||
   !GOMU_API_RATE_LIMIT ||
   isNaN(+GOMU_API_RATE_LIMIT)
@@ -42,7 +45,8 @@ async function start(): Promise<void> {
     +MYSQL_PORT!,
     MYSQL_DATABASE!,
     MYSQL_USERNAME!,
-    MYSQL_PASSWORD!
+    MYSQL_PASSWORD!,
+    +MYSQL_CONN_LIMIT!
   );
   startServer();
 }
