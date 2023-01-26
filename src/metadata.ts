@@ -1,3 +1,4 @@
+import { scoreCollection } from "openrarityjs";
 import { CONTRACT_METADATA_LIFE } from "./constants";
 import { getContractMetadata } from "./services/gomu";
 import {
@@ -48,6 +49,8 @@ async function processQueue() {
       continue;
     }
 
+    rerankMetadata(metadata);
+
     await saveMetadata(metadata);
   }
 
@@ -56,3 +59,22 @@ async function processQueue() {
   }, 100);
 }
 processQueue();
+
+function rerankMetadata(metadata: TokenMetadata[]): void {
+  // Map metadata by token ID
+  const mapped: Map<string, TokenMetadata> = new Map();
+  metadata.forEach((meta) => {
+    mapped.set(meta.tokenID, meta);
+  });
+
+  // Iterate through reranked metadata and update rankings
+  const reranked = scoreCollection(metadata);
+
+  if (!reranked) {
+    return;
+  }
+
+  reranked!.forEach((score) => {
+    mapped.get(score.tokenID)!.rarityRank = score.rank;
+  });
+}
