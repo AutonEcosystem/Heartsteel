@@ -12,23 +12,10 @@ const AUTHENTICATION_HEADER = {
 const requestQueue = new RequestQueue(+process.env.GOMU_API_RATE_LIMIT!);
 
 export async function getContractMetadata(
-  contractAddress: string
+  contractAddress: string,
+  tokenCount: number
 ): Promise<TokenMetadata[] | null> {
   const start = Date.now();
-
-  const tokenCount = await getTokenCount(contractAddress);
-
-  if (!tokenCount) {
-    return null;
-  }
-
-  if (tokenCount > MAX_TOKEN_COUNT) {
-    sendLogs(
-      `Skipping collection ${contractAddress}: token count exceeds maximum allowed.`,
-      false
-    );
-    return null;
-  }
 
   let responses;
   try {
@@ -65,7 +52,9 @@ export async function getContractMetadata(
   return metadata;
 }
 
-async function getTokenCount(contractAddress: string): Promise<number | null> {
+export async function getTokenCount(
+  contractAddress: string
+): Promise<number | null> {
   let response;
 
   try {

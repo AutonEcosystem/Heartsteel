@@ -1,6 +1,6 @@
 import { scoreCollection } from "openrarityjs";
-import { CONTRACT_METADATA_LIFE } from "./constants";
-import { getContractMetadata } from "./services/gomu";
+import { CONTRACT_METADATA_LIFE, MAX_TOKEN_COUNT } from "./constants";
+import { getContractMetadata, getTokenCount } from "./services/gomu";
 import {
   isContractSaved,
   readLastUpdated,
@@ -12,11 +12,15 @@ import { currentTimestampSeconds } from "./utils/date-utils";
 import { sendLogs } from "./utils/logging-utils";
 
 let downloadQueue: string[] = [];
+const skipList: Set<String> = new Set();
 
 export async function getMetadata(
   contractAddress: string,
   tokenID: string
 ): Promise<TokenMetadata | null> {
+  // Change to lowercase
+  contractAddress = contractAddress.toLowerCase();
+
   // Get metadata from database if it's already saved
   if (await isContractSaved(contractAddress)) {
     // Check if contract needs to be updated
@@ -30,7 +34,10 @@ export async function getMetadata(
   }
 
   // Otherwise, queue collection for saving if it is not already queued
-  if (!downloadQueue.includes(contractAddress)) {
+  if (
+    !downloadQueue.includes(contractAddress) &&
+    !skipList.has(contractAddress)
+  ) {
     downloadQueue.push(contractAddress);
     console.log("Collections in download queue: " + downloadQueue.length);
   }
@@ -42,9 +49,25 @@ async function processQueue() {
   for (let i = 0; i < downloadQueue.length; i++) {
     const contractAddress = downloadQueue.shift()!;
 
+    // First we need to check the token count
+    const tokenCount = await getTokenCount(contractAddress);
+
+    if (!tokenCount) {
+      continue;
+    }
+
+    if (tokenCount > MAX_TOKEN_COUNT) {
+      sendLogs(
+        `Skipping collection ${contractAddress}: token count exceeds maximum allowed.`,
+        false
+      );
+      skipList.add(contractAddress.toLowerCase());
+      continue;
+    }
+
     console.log(`Initiating download for ${contractAddress}`);
 
-    const metadata = await getContractMetadata(contractAddress);
+    const metadata = await getContractMetadata(contractAddress, tokenCount);
 
     if (!metadata) {
       continue;
