@@ -2,7 +2,7 @@ import { scoreCollection } from "openrarityjs";
 import { CONTRACT_METADATA_LIFE } from "./constants";
 import { getContractMetadata } from "./services/gomu";
 import {
-  isTokenSaved,
+  isContractSaved,
   readLastUpdated,
   readMetadata,
   saveMetadata,
@@ -18,7 +18,7 @@ export async function getMetadata(
   tokenID: string
 ): Promise<TokenMetadata | null> {
   // Get metadata from database if it's already saved
-  if (await isTokenSaved(contractAddress, tokenID)) {
+  if (await isContractSaved(contractAddress)) {
     // Check if contract needs to be updated
     const life =
       currentTimestampSeconds() - (await readLastUpdated(contractAddress));

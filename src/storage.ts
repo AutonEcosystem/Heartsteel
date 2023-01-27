@@ -41,10 +41,9 @@ async function setupTables(): Promise<void> {
   );
 }
 
-export async function isTokenSaved(contractAddress: string, tokenID: string) {
+export async function isContractSaved(contractAddress: string) {
   return pool.hasRow(TOKEN_METADATA_TABLE_NAME, {
     contract_address: contractAddress.toLowerCase(),
-    token_id: tokenID,
   });
 }
 
@@ -69,23 +68,27 @@ export async function saveMetadata(metadata: TokenMetadata[]): Promise<void> {
 export async function readMetadata(
   contractAddress: string,
   tokenID: string
-): Promise<TokenMetadata> {
-  const result = (
-    await pool.readValues(
-      TOKEN_METADATA_TABLE_NAME,
-      {
-        contract_address: contractAddress.toLowerCase(),
-        token_id: tokenID,
-      },
-      ["*"]
-    )
-  )[0];
+): Promise<TokenMetadata | null> {
+  const result = await pool.readValues(
+    TOKEN_METADATA_TABLE_NAME,
+    {
+      contract_address: contractAddress.toLowerCase(),
+      token_id: tokenID,
+    },
+    ["*"]
+  );
+
+  if (!result) {
+    return null;
+  }
+
+  const metadata = result[0];
 
   return {
-    contractAddress: result.contract_address,
-    tokenID: result.token_id,
-    rarityRank: result.rarity_rank,
-    traits: JSON.parse(result.traits),
+    contractAddress: metadata.contract_address,
+    tokenID: metadata.token_id,
+    rarityRank: metadata.rarity_rank,
+    traits: JSON.parse(metadata.traits),
   };
 }
 
