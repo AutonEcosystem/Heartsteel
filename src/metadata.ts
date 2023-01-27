@@ -1,5 +1,9 @@
 import { scoreCollection } from "openrarityjs";
-import { CONTRACT_METADATA_LIFE, MAX_TOKEN_COUNT } from "./constants";
+import {
+  CONTRACT_METADATA_LIFE,
+  MAX_TOKEN_COUNT,
+  METADATA_BATCH_SAVE_SIZE,
+} from "./constants";
 import { getContractMetadata, getTokenCount } from "./services/gomu";
 import {
   isContractSaved,
@@ -75,9 +79,13 @@ async function processQueue() {
 
     rerankMetadata(metadata);
 
-    saveMetadata(metadata).catch((error: any) => {
-      sendLogs(error, true);
-    });
+    while (metadata.length > 0) {
+      const batch = metadata.splice(0, METADATA_BATCH_SAVE_SIZE);
+
+      saveMetadata(batch).catch((error: any) => {
+        sendLogs(error, true);
+      });
+    }
   }
 
   setTimeout(() => {
