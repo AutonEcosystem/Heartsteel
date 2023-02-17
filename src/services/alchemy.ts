@@ -30,9 +30,15 @@ export async function getContractMetadata(
     return null;
   }
 
+  let noMetadata = 0;
   const metadata: TokenMetadata[] = [];
   for (const response of responses) {
     response.nfts.forEach((token: any) => {
+      if (!token.metadata.attributes) {
+        noMetadata++;
+        return;
+      }
+
       metadata.push({
         contractAddress,
         // Returned as a hex string
@@ -45,7 +51,10 @@ export async function getContractMetadata(
 
   const end = Date.now();
 
-  console.log("Found " + metadata.length + " tokens for " + contractAddress);
+  console.log(
+    "Found " + metadata.length + " total tokens for " + contractAddress
+  );
+  console.log("No metadata was found for " + noMetadata + " tokens");
   console.log(end - start + " ms");
 
   return metadata;
@@ -55,9 +64,10 @@ function transformTraitArray(traits: any[]): Trait[] {
   const transformed: Trait[] = [];
 
   traits.forEach((trait: any) => {
+    // Also need to convert traits to string as numbers can be returned
     transformed.push({
-      type: trait.trait_type,
-      value: trait.value,
+      type: trait.trait_type.toString(),
+      value: trait.value.toString(),
     });
   });
 
