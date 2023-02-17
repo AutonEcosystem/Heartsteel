@@ -64,7 +64,9 @@ function transformTraitArray(traits: any[]): Trait[] {
   const transformed: Trait[] = [];
 
   traits.forEach((trait: any) => {
-    if (!trait.trait_type || !trait.value) {
+    // Need to check if undefined explicitly because value could be "false" and still be valid
+    // but checking !trait.value would return true
+    if (trait.trait_type === undefined || trait.value === undefined) {
       sendLogs(
         `Found trait with missing type or value: \n${JSON.stringify(
           trait,
