@@ -52,7 +52,7 @@ export async function getMetadata(
 
 async function processQueue() {
   for (let i = 0; i < downloadQueue.length; i++) {
-    const contractAddress = downloadQueue.shift()!;
+    const contractAddress = downloadQueue[0];
 
     // First we need to check the token count
     const tokenCount = await getTokenCount(contractAddress);
@@ -87,6 +87,9 @@ async function processQueue() {
         sendLogs(error, true);
       });
     }
+
+    // Finally, remove collection from queue
+    downloadQueue.shift()!;
   }
 
   setTimeout(() => {
