@@ -64,6 +64,18 @@ function transformTraitArray(traits: any[]): Trait[] {
   const transformed: Trait[] = [];
 
   traits.forEach((trait: any) => {
+    if (!trait.trait_type || !trait.value) {
+      sendLogs(
+        `Found trait with missing type or value: \n${JSON.stringify(
+          trait,
+          null,
+          2
+        )}`,
+        true
+      );
+      return;
+    }
+
     // Also need to convert traits to string as numbers can be returned
     transformed.push({
       type: trait.trait_type.toString(),
