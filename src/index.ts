@@ -14,6 +14,8 @@ const {
   MYSQL_CONN_LIMIT,
   GOMU_API_KEY,
   GOMU_API_RATE_LIMIT,
+  ALCHEMY_API_KEY,
+  ALCHEMY_API_RATE_LIMIT,
 } = process.env;
 
 if (
@@ -29,7 +31,10 @@ if (
   isNaN(+MYSQL_CONN_LIMIT) ||
   !GOMU_API_KEY ||
   !GOMU_API_RATE_LIMIT ||
-  isNaN(+GOMU_API_RATE_LIMIT)
+  isNaN(+GOMU_API_RATE_LIMIT) ||
+  !ALCHEMY_API_KEY ||
+  !ALCHEMY_API_RATE_LIMIT ||
+  isNaN(+ALCHEMY_API_RATE_LIMIT)
 ) {
   throw new Error(
     "Some environment variables are not set properly. See .env.example"

@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/AutonEcosystem/Heartsteel#readme",
   "dependencies": {
+    "alchemy-sdk": "^2.4.3",
     "dotenv": "^16.0.3",
+    "ethers": "^6.0.4",
     "express": "^4.18.2",
     "https-proxy-agent": "^5.0.1",
     "mysql": "^2.18.1",

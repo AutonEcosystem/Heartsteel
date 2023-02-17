@@ -1,0 +1,65 @@
+import { BigNumber } from "alchemy-sdk";
+import { TokenMetadata, Trait } from "../types";
+import { sendLogs } from "../utils/logging-utils";
+import { RequestQueue } from "../utils/request-utils";
+
+const TOKEN_LIMIT = 100;
+
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY!;
+
+const requestQueue = new RequestQueue(+process.env.ALCHEMY_API_RATE_LIMIT!);
+
+export async function getContractMetadata(
+  contractAddress: string
+): Promise<TokenMetadata[] | null> {
+  const start = Date.now();
+
+  const responses = [];
+  try {
+    const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v2/${ALCHEMY_API_KEY}/getNFTsForCollection?contractAddress=${contractAddress}&withMetadata=true&limit=${TOKEN_LIMIT}`;
+    let response = await requestQueue.queueRequest(baseURL);
+    responses.push(await requestQueue.queueRequest(baseURL));
+
+    while (response.nextToken) {
+      const url = baseURL + `&startToken=${response.nextToken}`;
+      response = await requestQueue.queueRequest(url);
+      responses.push(response);
+    }
+  } catch (error: any) {
+    sendLogs(error, true);
+    return null;
+  }
+
+  const metadata: TokenMetadata[] = [];
+  for (const response of responses) {
+    response.nfts.forEach((token: any) => {
+      metadata.push({
+        contractAddress,
+        // Returned as a hex string
+        tokenID: BigNumber.from(token.id.tokenId).toString(),
+        rarityRank: token.rank,
+        traits: transformTraitArray(token.metadata.attributes),
+      });
+    });
+  }
+
+  const end = Date.now();
+
+  console.log("Found " + metadata.length + " tokens for " + contractAddress);
+  console.log(end - start + " ms");
+
+  return metadata;
+}
+
+function transformTraitArray(traits: any[]): Trait[] {
+  const transformed: Trait[] = [];
+
+  traits.forEach((trait: any) => {
+    transformed.push({
+      type: trait.trait_type,
+      value: trait.value,
+    });
+  });
+
+  return transformed;
+}

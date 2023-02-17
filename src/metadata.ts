@@ -4,7 +4,8 @@ import {
   MAX_TOKEN_COUNT,
   METADATA_BATCH_SAVE_SIZE,
 } from "./constants";
-import { getContractMetadata, getTokenCount } from "./services/gomu";
+import { getContractMetadata } from "./services/alchemy";
+import { getTokenCount } from "./services/gomu";
 import {
   isContractSaved,
   readLastUpdated,
@@ -71,7 +72,7 @@ async function processQueue() {
 
     console.log(`Initiating download for ${contractAddress}`);
 
-    const metadata = await getContractMetadata(contractAddress, tokenCount);
+    const metadata = await getContractMetadata(contractAddress);
 
     if (!metadata) {
       continue;
