@@ -17,6 +17,7 @@ import { currentTimestampSeconds } from "./utils/date-utils";
 import { sendLogs } from "./utils/logging-utils";
 
 let downloadQueue: string[] = [];
+const downloading: Set<string> = new Set();
 const skipList: Set<String> = new Set();
 
 export async function getMetadata(
@@ -41,7 +42,8 @@ export async function getMetadata(
   // Otherwise, queue collection for saving if it is not already queued
   if (
     !downloadQueue.includes(contractAddress) &&
-    !skipList.has(contractAddress)
+    !skipList.has(contractAddress) &&
+    !downloading.has(contractAddress)
   ) {
     downloadQueue.push(contractAddress);
     console.log("Collections in download queue: " + downloadQueue.length);
@@ -52,12 +54,14 @@ export async function getMetadata(
 
 async function processQueue() {
   for (let i = 0; i < downloadQueue.length; i++) {
-    const contractAddress = downloadQueue[0];
+    const contractAddress = downloadQueue.shift()!;
+    downloading.add(contractAddress);
 
     // First we need to check the token count
     const tokenCount = await getTokenCount(contractAddress);
 
     if (!tokenCount) {
+      downloading.delete(contractAddress);
       continue;
     }
 
@@ -67,6 +71,7 @@ async function processQueue() {
         false
       );
       skipList.add(contractAddress.toLowerCase());
+      downloading.delete(contractAddress);
       continue;
     }
 
@@ -75,6 +80,7 @@ async function processQueue() {
     const metadata = await getContractMetadata(contractAddress);
 
     if (!metadata) {
+      downloading.delete(contractAddress);
       continue;
     }
 
@@ -87,9 +93,6 @@ async function processQueue() {
         sendLogs(error, true);
       });
     }
-
-    // Finally, remove collection from queue
-    downloadQueue.shift()!;
   }
 
   setTimeout(() => {
