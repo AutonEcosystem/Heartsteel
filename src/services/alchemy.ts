@@ -63,6 +63,19 @@ export async function getContractMetadata(
 function transformTraitArray(traits: any[]): Trait[] {
   const transformed: Trait[] = [];
 
+  // Sometimes traits.forEach does not exist as a function, need to investigate
+  if (typeof traits.forEach !== "function") {
+    sendLogs(
+      `Could not transform trait array, traits object not iterable: ${JSON.stringify(
+        traits,
+        null,
+        2
+      )}`,
+      true
+    );
+    return transformed;
+  }
+
   traits.forEach((trait: any) => {
     // Need to check if undefined explicitly because value could be "false" and still be valid
     // but checking !trait.value would return true
