@@ -35,6 +35,13 @@ export async function getContractMetadata(
   for (const response of responses) {
     response.nfts.forEach((token: any) => {
       if (!token.metadata.attributes) {
+        metadata.push({
+          contractAddress,
+          // Returned as a hex string
+          tokenID: BigNumber.from(token.id.tokenId).toString(),
+          rarityRank: token.rank,
+          traits: [],
+        });
         noMetadata++;
         return;
       }
