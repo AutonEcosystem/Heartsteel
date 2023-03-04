@@ -33,13 +33,19 @@ export async function getMetadata(
     const life =
       currentTimestampSeconds() - (await readLastUpdated(contractAddress));
     if (life > CONTRACT_METADATA_LIFE) {
-      downloadQueue.push(contractAddress);
+      addToQueue(contractAddress);
     }
 
     return readMetadata(contractAddress, tokenID);
   }
 
   // Otherwise, queue collection for saving if it is not already queued
+  addToQueue(contractAddress);
+
+  return null;
+}
+
+function addToQueue(contractAddress: string) {
   if (
     !downloadQueue.includes(contractAddress) &&
     !skipList.has(contractAddress) &&
@@ -48,8 +54,6 @@ export async function getMetadata(
     downloadQueue.push(contractAddress);
     console.log("Collections in download queue: " + downloadQueue.length);
   }
-
-  return null;
 }
 
 async function processQueue() {
