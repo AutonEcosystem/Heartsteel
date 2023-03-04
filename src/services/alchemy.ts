@@ -39,7 +39,7 @@ export async function getContractMetadata(
           contractAddress,
           // Returned as a hex string
           tokenID: BigNumber.from(token.id.tokenId).toString(),
-          rarityRank: token.rank,
+          rarityRank: null,
           traits: [],
         });
         noMetadata++;
