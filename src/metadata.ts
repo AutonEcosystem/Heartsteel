@@ -1,6 +1,7 @@
 import { scoreCollection } from "openrarityjs";
 import {
   CONTRACT_METADATA_LIFE,
+  MAX_RARITY_INDEX_COUNT,
   MAX_TOKEN_COUNT,
   METADATA_BATCH_SAVE_SIZE,
 } from "./constants";
@@ -88,7 +89,10 @@ async function processQueue() {
       continue;
     }
 
-    rerankMetadata(metadata);
+    // To avoid calculating rarity for very large collections
+    if (tokenCount <= MAX_RARITY_INDEX_COUNT) {
+      rerankMetadata(metadata);
+    }
 
     while (metadata.length > 0) {
       const batch = metadata.splice(0, METADATA_BATCH_SAVE_SIZE);
