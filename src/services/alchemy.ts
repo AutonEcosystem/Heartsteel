@@ -84,6 +84,11 @@ function transformTraitArray(traits: any[]): Trait[] {
   }
 
   traits.forEach((trait: any) => {
+    if (trait === undefined) {
+      sendLogs(`Found undefined trait`, true);
+      return;
+    }
+
     // Need to check if undefined explicitly because value could be "false" and still be valid
     // but checking !trait.value would return true
     if (trait.trait_type === undefined || trait.value === undefined) {
