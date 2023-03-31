@@ -84,8 +84,8 @@ function transformTraitArray(traits: any[]): Trait[] {
   }
 
   traits.forEach((trait: any) => {
-    if (trait === undefined) {
-      sendLogs(`Found undefined trait`, true);
+    if (trait === undefined || trait === null) {
+      sendLogs(`Found undefined/null trait`, true);
       return;
     }
 
