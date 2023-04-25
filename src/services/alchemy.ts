@@ -103,10 +103,11 @@ function transformTraitArray(traits: any[]): Trait[] {
       return;
     }
 
-    // Also need to convert traits to string as numbers can be returned
+    // Convert traits to string as numbers/booleans can be returned
+    // And trim in case of leading/trailing spaces
     transformed.push({
-      type: trait.trait_type.toString(),
-      value: trait.value.toString(),
+      type: trait.trait_type.toString().trim(),
+      value: trait.value.toString().trim(),
     });
   });
 
